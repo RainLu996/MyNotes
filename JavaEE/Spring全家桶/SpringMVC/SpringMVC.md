@@ -4,7 +4,7 @@
 
 ### 1.1 什么是SpringMVC
 
-​		**<font color="red">SpringMVC是Spring框架的一部分（子框架）， 是对Servlet的封装。</font>**Spring MVC是一个基于MVC架构的用来简化web应用程序开发的**表现层**框架。它是Spring的一个**模块**，<u>无需像MyBatis一样需要中间整合层来整合</u> 。在web模型中，MVC是一种很流行的框架，通过把Model，View，Controller分离，把较为复杂的web应用分成逻辑清晰的几部分，简化开发，减少出错，方便组内开发人员之间的配合。
+​		**<font color="red">SpringMVC是Spring框架的一部分（子框架）， 是对Servlet的封装。</font>**Spring MVC是一个基于MVC架构的用来简化web应用程序开发的`表现层`框架。它是Spring的一个**模块**，<u>无需像MyBatis一样需要中间整合层来整合</u> 。在web模型中，MVC是一种很流行的架构模式，通过把Model，View，Controller分离，把较为复杂的web应用分成逻辑清晰的几部分，简化开发，减少出错，方便组内开发人员之间的配合。
 
 
 
@@ -31,7 +31,7 @@
 
 2. Spring框架的核心思想是IOC容器，用来管理bean的生命周期，而一个项目中会包含很多容器，并且<u>它们分上下层关系</u>。目前最常用的一个场景是在一个项目中导入Spring和SpringMVC框架。而Spring和SpringMVC其实就是两个父子容器：Spring是父容器，SpringMVC是子容器。**在Spring父容器中注册的Bean对SpringMVC子容器是可见的；而在SpringMVC子容器注册的Bean对Spring父容器是不可见的。**
 
-3. 按照官方文档推荐，根据不同的业务模块来划分出不同的容器，在不同的容器中注册不同的Bean。  SpringMVC主要就是为我们构建web应用程序，那么SpringMVC子容器用来注册web组件的Bean（Controller），如控制器、处理器映射、视图解析器等。而Spring容器用来注册其它的Bean，这些Bean通常是驱动应用后端的中间层和数据层组件（service、dao……）。
+3. 按照官方文档推荐，根据不同的业务模块来划分出不同的容器，在不同的容器中注册不同的Bean。  SpringMVC主要就是为我们构建web应用程序，那么SpringMVC子容器用来注册`web组件`的Bean（Controller），如控制器、处理器映射、视图解析器等。而Spring容器用来注册其它`非web组件`的Bean，这些Bean通常是驱动应用后端的中间层和数据层组件（service、dao……）。
 
 > ​		在实际项目中，一般情况下，只需要一个SpringMVC容器即可满足业务需求。但如果在项目中因为特殊需求需要配置两个SpringMVC容器（配置多个DispatcherServlet），则此时可以根据这个实际需求，选择是否配置创建Spring容器。
 
@@ -77,7 +77,7 @@
 </servlet-mapping>
 ```
 
-> ​		在\<servlet/>中添加\<load-on-startup/>的作用是：标记是否在Web服务器（这里是Tomcat） 启动时会创建这个 Servlet 实例，即是否在 Web 服务器启动时调用执行该 Servlet 的 `init()`方 法，而不是在真正访问时才创建。 它的值必须是一个整数。
+> ​		在\<servlet/>中添加\<load-on-startup/>的作用是：标记是否在Web服务器（这里是Tomcat） 启动时会创建这个 Servlet 实例，即是否在 **Web 服务器启动时**调用执行该 Servlet 的 `init()`方 法，而不是在真正访问时才创建。 它的值必须是一个整数。
 >
 > - 当值`大于等于 0` 时，表示容器在启动时就加载并初始化这个 servlet，**数值越小，该 Servlet 的优先级就越高**，其被创建的也就越早； 
 >
@@ -134,7 +134,10 @@
 >
 > ​		另外：`/*` 在拦截器、过滤器中表示拦截所有的文件夹，<u>不包含子文件夹</u>。
 
-<hr>
+---
+
+
+
 
 ​		"/*"可以匹配所有url，包括带扩展名的，一般只用在过滤器上。而"/"很多人理解成不能拦截带扩展名的，这种理解是错误的！它其实也能拦截“.js”，“.css”，".png"等静态资源的访问。看官方文档可知，它是tomcat的默认servlet，当其他的url-pattern匹配不上时都会走这个servlet。它除了能够处理静态资源还能够处理HTTP缓存请求，媒体（音频/视频）数据流和文件下载简历。所以如果我们的项目中配置了"/"，会覆盖掉tomcat中的default servlet。
 
@@ -173,9 +176,9 @@
 >
 > #### 理解使用`<mvc:annotation-driven/>`解决动、静态资源映射冲突问题
 >
-> > ​		因为Tomact容器中并不会存放<u>控制器对象</u>来处理用户对动态资源文件的访问，这些<u>控制器对象实际上是存在于SpringMVC容器之中</u>的。那么，要想让对动态资源的请求不被框架使用`DefaultServletHttpRequestHandler`转发到Tomcat，不就是**将对动态资源的请求映射的时间提升到资源被转发的时间之前**么？
+> > ​		因为Tomcat容器中并不会存放<u>控制器对象</u>来处理用户对动态资源文件的访问，这些<u>控制器对象实际上是存在于SpringMVC容器之中</u>的。那么，要想让对动态资源的请求不被框架使用`DefaultServletHttpRequestHandler`转发到Tomcat，不就是**将对动态资源的请求映射的时间提升到资源被转发的时间之前**么？
 > >
-> > ​		这也就是为什么仅仅使用`DefaultServletHttpRequestHandler`处理用户请求将导致**动态资源文件**无法被处理。而添加上`<mvc:annotation-driven/>`就可以解决问题的原因。
+> > ​		这也就是为什么<u>仅仅使用</u>`DefaultServletHttpRequestHandler`处理用户请求将导致**动态资源文件**无法被处理。而添加上`<mvc:annotation-driven/>`就可以解决问题的原因。
 
 - SpringMVC主配置文件
 
@@ -279,7 +282,7 @@
 ​	    @ControllerAdvice 注解被 @Component 注解 注解了，所以可以使用`<context:component-scan>`
 扫描 @ControllerAdvice 所在的类路径(包名)，创建对象。
 
-​		使用注解 @ExceptionHandler 可以将一个方法指定为异常处理方法。这个方法可以出现在被@ControllerAdvice注解的类中，也可以直接出现在@Controller中。但一般不建议直接写在Controller中，而是单独创建一个 **全局异常处理类** 来进行<u>异常处理</u>。当被@ExceptionHandler注解的方法直接写在Controller方法中的时候，表示只处理当前Controller中的异常。
+​		使用注解 @ExceptionHandler 可以将一个方法指定为异常处理方法。这个方法可以出现在被@ControllerAdvice注解的类中，也可以直接出现在@Controller中。但一般不建议直接写在Controller中，而是单独创建一个 **全局异常处理类** 来进行<u>异常处理</u>。**当被@ExceptionHandler注解的方法直接写在Controller方法中的时候，表示只处理当前Controller中的异常**。
 
 - 把异常记录下来，记录到数据库、日志文件。
 - 发送通知，把异常信息通过邮件、短信发送给相关人员
@@ -561,7 +564,7 @@ public class MyInterceptor implements HandlerInterceptor{
 
 |                    SpringMVC请求处理流程                     |
 | :----------------------------------------------------------: |
-| ![image-20230127211410086](imgs\image-202301272106380913.png) |
+| ![image-20230302134956535 ](imgs\image-20230302134956535.png) |
 
 > ​		注意：第5步的 执行**处理器**，在源码中是用`handle`表示的，而不是Controller。
 

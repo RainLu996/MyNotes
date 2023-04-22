@@ -1,10 +1,12 @@
 # SpringBoot面试题
 
+[大厂面试相关：精选41 道 Spring Boot 面试题，附答案！ - 脉脉 (maimai.cn)](https://maimai.cn/article/detail?fid=1455519864&efid=X0qhANzjme4Ft1ug5I58CA)
+
 ### Spring、SpringMVC和SpringBoot的区别
 
 **1、Spring**
 
-​		Spring是一个开源容器框架，简单的说就是一个分层的轻量级开源框架，可以接管web层（表现层），业务逻辑层，数据访问层的组件，配置和管理bean。其核心就是控制反转(IOC)和面向切面([AOP](https://so.csdn.net/so/search?q=AOP&spm=1001.2101.3001.7020))。
+​		Spring是一个开源容器框架，简单的说就是一个**分层的轻量级开源框架**，可以接管web层（表现层），业务逻辑层，数据访问层的组件，配置和管理bean。其核心就是控制反转(IOC)和面向切面([AOP](https://so.csdn.net/so/search?q=AOP&spm=1001.2101.3001.7020))。
 
 **2、SpringMVC**
 
@@ -12,7 +14,7 @@
 
 **3、SpringBoot**
 
-​		SpringBoot 是 Spring 开源组织下的子项目，是 Spring 组件的一站式解决方案。SpringBoot简化了使用 Spring 的难度，遵循“约定优于配置” ，提供了各种启动器，并支持自动配置，避免了繁重的配置，简化了应用的开发和部署，使得开发者能快速上手搭建一个企业级Spring项目。
+​		SpringBoot 是 Spring 开源组织下的子项目，是 Spring 组件的**一站式解决方案**。SpringBoot简化了使用 Spring 的难度，遵循“约定优于配置” ，提供了各种启动器，并支持自动配置，避免了繁重的配置，简化了应用的开发和部署，使得开发者能快速上手搭建一个企业级Spring项目。
 
 
 
@@ -21,21 +23,14 @@
 - 优点
 
     - **独立运行**：内嵌了servlet，Tomcat等，不需要打成war包部署到容器中，而只需要将SpringBoot项目打成jar包就能独立运行。
-    - **简化配置**：启动器自动依赖一系列相关的组件，简少了 maven 的配置。各种常用组件及配置已经默认配置完成，无需过多干预。这也避免了手动管理项目依赖所造成的各种版本冲突问题。
+    - **简化配置**：启动器自动依赖一系列相关的组件，简少了 maven 的配置。各种常用组件及配置已经默认自动配置完成，无需过多干预。这也避免了手动管理项目依赖所造成的各种版本冲突问题。可以做到无冗余代码生成和无XML配置，这得益于JavaConfig的存在。
     - **应用监控**：SpringBoot 提供一系列端点可以监控服务及应用，做健康检测、注解配置监测。
-    - 可以做到无冗余代码生成和无XML配置，这得益于JavaConfig的存在。
-
+    
 - 缺点
 
     - 程序报错时的异常信息很笼统，不精确，导致排错时难以定位。
 
-        
-
-**自动配置**
-
-SpringBoot能根据当前类路径下的类、jar包来自动配置bean，如添加一个spring-boot-starter-web启动器就能拥有web的功能，无需其他配置。
-
-
+      
 
 ### SpringBoot 的配置文件有哪几种格式？它们有什么区别？
 
@@ -160,11 +155,11 @@ db.password=123456
 
 ### 你如何理解 SpringBoot 中的 Starters？
 
-​		Starters（启动器）包含了某个应用场景下的一系列集成到应用里面的**依赖jar包**和相关的一些**初始化配置**，使得可以一站式集成 Spring 及其他技术，而不需要到处找示例代码和依赖包。比如：想要创建一个简单的web项目，只要加入 spring-boot-starter-web 启动器依赖再进行一些简单属性配置就可以了。Starters包含了在项目中经常会使用到的依赖，它们能快速持续的运行，都是一系列得到支持的管理传递性依赖。
+​		Starters（启动器）包含了**某个应用场景**下的一系列集成到应用里面的**依赖jar包**和相关的一些**初始化配置**，使得可以一站式集成 Spring 及其他技术，而不需要到处找示例代码和依赖包。比如：想要创建一个简单的web项目，只要加入 spring-boot-starter-web 启动器依赖再进行一些简单属性配置就可以了。Starters包含了在项目中经常会使用到的依赖，它们能快速持续的运行，都是一系列得到支持的管理传递性依赖。
 
 
 
-### SpringBoot 中的 starter 到底是什么 ?
+### SpringBoot 中的 starter 到底是什么?
 
 ​		首先，这个 Starter 并非什么新的技术点，基本上还是基于 Spring 已有功能来实现的。首先它提供了一个自动化配置类，一般命名为 XXXAutoConfiguration ，在这个配置类中通过条件注解来决定一个配置是否生效（条件注解就是 Spring 中原本就有的），然后它还会提供一系列的默认配置，也允许开发者根据实际情况自定义相关配置，然后通过类型安全的属性(spring.factories)注入将这些配置属性注入进来，新注入的属性会代替掉默认属性。正因为如此，很多第三方框架，我们只需要引入依赖就可以直接使用了。当然，开发者也可以自定义 Starter。
 
@@ -206,7 +201,7 @@ db.password=123456
 
 
 
-> ​		自动装配，简单来说就是自动将导入的依赖所需要的bean转载到IOC容器里面，而不需要开发人员再去手动配置bean。在SpringBoot应用中，只需要在主启动类上面加上@SpringBootApplication注解就可以实现自动装配。这个注解是一个复合注解，真正的实现自动装配的注解是@EnableAutoConfiguration。自动依赖的实现主要有三个步骤：第一个是“引入Starter的时候，其中必须要包含@Configuration配置类，在这些个配置类中，需要通过@Bean来声明一系列需要被装配到IOC容器里的bean对象即需要被自动装配的对象”；第二个是将这些配置类的全限定路径注册进`classpath:META-INF/spring.factories`文件中；第三个是：SpringBoot遵循约定由于配置，在启动时就会加载这个文件，从而知道jar包中的配置类的位置，Spring在拿到对应的配置类的全限定路径后，再来加载这些配置类，并创建一系列的bean对象，以完成自动配置。
+> ​		自动装配，简单来说就是自动将导入的依赖所需要的bean注册到IOC容器里面，而不需要开发人员再去手动配置bean。在SpringBoot应用中，只需要在主启动类上面加上@SpringBootApplication注解就可以实现自动装配。这个注解是一个复合注解，真正的实现自动装配的注解是@EnableAutoConfiguration。自动依赖的实现主要有三个步骤：第一个是“引入Starter的时候，其中必须要包含**@Configuration配置类**，在这些个配置类中，需要通过@Bean来声明一系列需要被装配到IOC容器里的bean对象即需要被自动装配的对象”；第二个是将这些配置类的**全限定路径**注册进`classpath:META-INF/spring.factories`文件中；第三个是：SpringBoot遵循**约定优于配置**，在启动时就会加载这个文件，从而知道jar包中的配置类的位置，Spring在拿到对应的配置类的全限定路径后，再来加载这些配置类，并创建一系列的bean对象，以完成自动配置。
 
 
 
@@ -338,6 +333,11 @@ CSRF 代表跨站请求伪造。这是一种攻击，迫使最终用户在当前
 简单来说就是：攻击者盗取合法用户登录信息，通过盗取账户进行登录，然后以合法用户的身份发送恶意请求，但是请求对于服务器来说是合法的。
 
 
+
+[CORS与CSRF](https://blog.csdn.net/fitzleopard/article/details/106794413)
+
+- CORS(Cross Origin Resource Sharing)跨域资源分享：是一种机制，通过在HTTP响应头中加入特定字段限制不同域的资源请求。
+- CSRF(Cross Site Request Forgery)跨站请求伪造：是一种web攻击手段，通过向服务器发送伪造请求，进行恶意行为的攻击手段。
 
 
 

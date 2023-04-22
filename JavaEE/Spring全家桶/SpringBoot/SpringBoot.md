@@ -6,7 +6,7 @@
 
 ​		Spring最核心的两大核心功能 `IoC` 和 `AOP`成就了 Spring。Spring在这两大核心的功能上不断的发展，才有了 <u>Spring事务</u>、<u>Spring MVC</u>等一系列伟大的产品，最终成就了Spring帝国。
 
-​		到了后期，Spring几乎可以解决企业开发中的所有问题。**Spring Boot**是在强大的 Spring帝国生态基础上面发展而来。<u>发明 Spring Boot不是为了取代Spring，是为了让人们更容易的使用 Spring</u>。**Spring Cloud**是一系列框架的有序集合，它利用 Spring Boot的开发便利性巧妙地简化了分布式系统基础设施的开发，如服务发现注册、配置中心、消息总线、负载均衡、断路器、数据监控等，都可以用 Spring Boot的开发风格做到一键启动和部署。<u>Spring Cloud是为了解决微服务架构中服务治理而提供的**一系列功能**（不是单指一个框架）的开发框架</u>，并且*Spring Cloud是完全基于 Spring Boot而开发*，Spring Cloud利用 Spring Boot的特性整合了开源行业中优秀的组件,整体对外提供了一套在微服务架构中服务治理的解决方案。用一组不太合理的包含关系来表达它们之间的关系。
+​		到了后期，Spring几乎可以解决企业开发中的所有问题。**Spring Boot**是在强大的 Spring帝国生态基础上面发展而来。<u>发明 Spring Boot不是为了取代Spring，是为了让人们更容易的使用 Spring</u>。**Spring Cloud**是一系列框架的有序集合，它利用 Spring Boot的开发便利性巧妙地简化了分布式系统基础设施的开发，如服务发现注册、配置中心、消息总线、负载均衡、断路器、数据监控等，都可以用 Spring Boot的开发风格做到一键启动和部署。<u>Spring Cloud是为了解决微服务架构中服务治理而提供的**一系列功能**（不是单指一个框架）的开发框架</u>，并且**Spring Cloud是完全基于 Spring Boot而开发**，Spring Cloud利用 Spring Boot的特性整合了开源行业中优秀的组件,整体对外提供了一套在`微服务架构`中服务治理的解决方案。用一组不太合理的包含关系来表达它们之间的关系。
 
 
 
@@ -87,8 +87,6 @@ public class MyConfig {
 
 - @ConditionalOnBean：当容器中存在所指定的bean的时候，进行组件注入
 - @ConditionalOnMissingBean：当容器中不存在所指定的bean的时候，进行组件注入
-
-
 
 
 
@@ -1227,7 +1225,7 @@ Spring + SpringMVC + SpringBoot
 
 @Bean: 放在方法的上面， 把方法的返回值对象，注入到spring容器中。
 
-@ImportResource: 加载其他的xml配置文件， 把文件中的对象注入到spring容器中
+@ImportResource: 加载其他的xml配置文件，把XML配置文件中的对象注入到spring容器中
 
 @PropertySource: 读取其他的properties属性配置文件
 
@@ -1236,9 +1234,8 @@ Spring + SpringMVC + SpringBoot
 @ResponseBody: 放在方法的上面，表示方法的返回值是数据， 不是视图
 @RequestBody : 把请求体中的数据，读取出来， 转为java对象使用。
 
-@ControllerAdvice:  控制器增强， 放在类的上面， 表示此类提供了方法，可以对controller增强功能。
-
-@ExceptionHandler : 处理异常的，放在方法的上面
+@ControllerAdvice:  控制器增强。放在controller类的上面， 表示此类提供了一些增强方法。
+@ExceptionHandler : 放在方法的上面，表示被注解的方法是用于处理全局异常的
 
 @Transcational :  处理事务的， 放在service实现类的public方法上面， 表示此方法有事务
 
@@ -1250,7 +1247,7 @@ Spring + SpringMVC + SpringBoot
 ------------------------SpringBoot中与MyBatis相关的注解---------------------------------
 @Mapper: 放在类的上面 ， 让MyBatis找到接口， 创建他的代理对象    
 @MapperScan: 放在主类的上面 ， 指定扫描的包， 把这个包中的所有接口都创建代理对象。 对象注入到容器中
-@Param: 放在dao接口的方法的形参前面， 作为命名参数使用的。
+@Param: 如果dao接口有多个形参，则将其放在dao接口的形参前面，作为命名参数以供在MyBatis中写SQL语句时区分各个参数。
     
 ------------------------SpringBoot中与Dubbo相关的注解--------------------------------- 
 @DubboService: 在提供者端使用的，暴露服务的， 放在接口的实现类上面
@@ -1259,7 +1256,3 @@ Spring + SpringMVC + SpringBoot
 ```
 
 
-
----
-
-[大厂面试相关：精选41 道 Spring Boot 面试题，附答案！ - 脉脉 (maimai.cn)](https://maimai.cn/article/detail?fid=1455519864&efid=X0qhANzjme4Ft1ug5I58CA)

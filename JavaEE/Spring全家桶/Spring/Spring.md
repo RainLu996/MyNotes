@@ -35,7 +35,7 @@
 - 轻量：Spring是轻量的，基本的版本大约2MB
 - 低侵入式设计：Spring属于**低侵入式**设计，代码的污染极低；
 - 控制反转：Spring通过**控制反转**实现了<u>松散、解耦合</u>，由容器管理对象，对象的依赖关系。
-- 面向切面编程(AOP)：Spring支持面向切面的编程，可以把**应用业务逻辑**和**系统服务**分开
+- 面向切面编程(AOP)：Spring支持面向切面的编程，可以把**业务逻辑**和**交叉业务逻辑**分开
 - Spring对于主流的应用框架提供了集成支持：Spring 不排斥各种优秀的开源框架，相反 Spring 可以降低各种框架的使用难度，Spring 提供了对各种优秀框架（如 Struts，Hibernate、MyBatis）等的直接支持。
 
 
@@ -44,7 +44,7 @@
 
 ### 1. 什么是IOC
 
-> ​		**控制反转， 是一个理论，概念，思想。**它是指将对象的<u>创建，赋值以及对象生命周期的管理工作</u>都交给代码之外的**容器**实现， 而不是由<u>程序</u>直接进行对象操控。（控制权由程序代码转移到了 Spring 容器中，控制权发生了反转。）
+> ​		**控制反转， 是一个理论，概念，思想。**它是指将对象的<u>创建，赋值以及对象生命周期的管理工作</u>都交给代码之外的**容器**实现， 而不是由<u>程序</u>直接进行对象操控。（控制权由程序代码转移到了 Spring 容器中，控制权发生了反转）
 
 - #### 名词介绍
   
@@ -57,7 +57,7 @@
 
 ### 2. IOC是为了解决什么问题而提出的
 
-​		IOC解决对象之间的耦合问题。例如当service层调用dao层时，传统方式下我们需要在service中new出dao层的具体实现类，这时当我们的实现类需要改变时，service层也需要做相应的改变，这就造成了service层和dao层的强耦合。而使用IOC实例化对象时，我们只需要关注调用的dao层的接口，在service中声明接口属性，具体的实现类在IOC容器中进行切换，因此不会产生对象中强耦合的情况。
+​		**IOC解决对象之间的耦合问题**。例如当service层调用dao层时，传统方式下我们需要在service中new出dao层的具体实现类，这时当我们的实现类需要改变时，service层也需要做相应的改变，这就造成了service层和dao层的`强耦合`。而使用IOC实例化对象时，我们只需要关注调用的dao层的接口，在service中声明接口属性，具体的实现类在IOC容器中进行切换，因此不会产生对象中强耦合的情况。
 
 
 
@@ -96,7 +96,7 @@
 
 ### ==5. 什么是IOC容器    To Be Continue~==
 
-​	**IOC容器就是具有依赖注入功能的容器**。IOC容器负责实例化、定位、配置应用程序中的对象及建立这些对象间的依赖。应用程序无需在代码中new相关的对象，而是直接使用由IOC容器进行组装的对象。在Spring中`BeanFactory`是IOC容器的顶层核心接口。
+​		**IOC容器就是具有依赖注入功能的容器**。IOC容器负责实例化、定位、配置应用程序中的对象及建立这些对象间的依赖。应用程序无需在代码中new相关的对象，而是直接使用由IOC容器进行组装的对象。在Spring中`BeanFactory`是IOC容器的顶层核心接口。
 
 > ​		<u><font color="blue">Spring IOC容器需要通过**配置文件**才能知道哪些是它管理的对象。</font></u>
 >
@@ -312,7 +312,6 @@ public class Spring6Configuration {
 
 ------
 
-
 [Spring源码学习---基于注解配置Aop的aspectj-autoproxy解析](https://blog.csdn.net/weixin_45480785/article/details/113819166)
 
 
@@ -335,9 +334,13 @@ public class Spring6Configuration {
 
 ### 2. 编程式事务与声明式事务
 
+[(28条消息) Spring中的编程式事务与声明式事务_XY-JAVA的博客-CSDN博客_声明式事务](https://blog.csdn.net/m0_66918076/article/details/124390848)
+
+[(28条消息) 事务 编程式事务和声明式事务的优缺点_fastjson_的博客-CSDN博客_编程事务和声明事务](https://blog.csdn.net/bbj12345678/article/details/109688950)
+
 - **编程式事务：**通过编程的方式管理事务。
 
-  ​		编程式事务管理使用`TransactionTemplate`或者直接使用底层的`PlatformTransactionManager`来进行实现。对于编程式事务管理，spring推荐使用`TransactionTemplate`。这种方式很少用，因为它对代码具有侵入式的影响。虽然灵活度很高，但是难以维护！
+  ​		编程式事务管理使用`TransactionTemplate`或者直接使用底层的`PlatformTransactionManager`来进行实现。对于编程式事务管理，spring推荐使用`TransactionTemplate`。但实际开发中，编程式事务很少用，因为它对代码具有**侵入式**的影响。虽然灵活度很高，但是难以维护！
 
   
 
@@ -349,7 +352,7 @@ public class Spring6Configuration {
 
 > - **基于注解**实现事务的方式用起来简单、方便、灵活，所以**中小型项目**用注解的方式会更加方便、直观。
 >
-> - **基于配置**实现事务的方式适合**大型项目**，因为大型项目中往往有很多的类、方法，需要大量的配置事务，使用注解将造成维护不便（因为类太多，总会有考虑不全的地方）。这时，使用AspectJ框架功能，在spring配置文件中声明类，方法需要的事务。这种方式让业务方法和事务配置完全分离。
+> - **基于配置**实现事务的方式适合**大型项目**，因为大型项目中往往有很多的类、方法，需要大量的配置事务，使用注解将造成维护不便（因为类太多，总会有考虑不全的地方）。这时，使用AspectJ框架功能，在spring配置文件中声明类，方法需要的事务。这种方式**让业务方法和事务配置完全分离**。
 
 
 
@@ -361,7 +364,7 @@ public class Spring6Configuration {
 >
 > 
 >
-> ​		==**注意：Spring只是提供一种管理事务的能力。真正处理事务的是不同的数据库访问技术。**==
+> ​		==**注意：Spring只是提供一种管理事务的能力|统一的平台。真正处理事务的是不同的数据库访问技术。**==
 >
 > > - **事务性资源：**如关系型数据库Mysql、Oracle、某些消息队列中间件等，因为它们**本身支持事务**，也能够处理事务。
 > > - Spring不是事务性资源，但是它可以**管理事务性资源**，所以Spring和事务之间是**<font color="blue">管理关系</font>**。
@@ -380,7 +383,9 @@ public class Spring6Configuration {
 
 - **事务应用和属性配置**：像一个标识符，表明哪些方法要参与事务，如何参与事务，以及一些相关属性如隔离级别、超时时间等。
 
-  
+---
+
+
 
 [Spring事务相关接口解析：PlatformTransactionManager、TransactionDefinition和TransactionStatus](https://blog.csdn.net/unbelievevc/article/details/126340197)
 
@@ -486,7 +491,7 @@ public class Spring6Configuration {
 
 #### 1）什么是事务的传播行为
 
-> ​		在service类中有a()方法和b()方法，a()方法上有事务，b()方法上也有事务，当a()方法执行过程中调用了b()方法，事务是如何传递的？合并到一个事务里？还是开启一个新的事务？这就是事务传播行为。
+> ​		在service类中有a()方法和b()方法，a()方法上有事务，b()方法上也有事务，当a()方法执行过程中调用了b()方法，事务是如何传递的？合并到一个事务里？还是开启一个新的事务？这就是**事务传播行为**。
 
 
 
@@ -496,7 +501,7 @@ public class Spring6Configuration {
 - `SUPPORTS`：支持当前事务，如果当前没有事务，就以非事务方式执行**<font color="red">【有就加入，没有就不管了】</font>**
 - `MANDATORY`：必须运行在一个事务中，如果当前没有事务正在发生，将抛出一个异常**<font color="red">【有就加入，没有就抛异常】</font>**
 - `REQUIRES_NEW`：开启一个新的事务，如果一个事务已经存在，则将这个存在的事务挂起**<font color="red">【不管有没有，直接开启一个新事务，开启的新事务和之前的事务不存在嵌套关系，之前事务被挂起】</font>**
-- `NESTED`：如果当前正有一个事务在进行中，则该方法应当运行在一个嵌套式事务中。被嵌套的事务可以独立于外层事务进行提交或回滚。如果外层事务不存在，行为就像REQUIRED一样。**<font color="red">【有事务的话，就在这个事务里再嵌套一个完全独立的事务，嵌套的事务可以独立的提交和回滚。没有事务就和REQUIRED一样。】</font>**
+- `NESTED`：如果当前正有一个事务在进行中，则该方法应当运行在一个嵌套式事务中。被嵌套的事务可以独立于外层事务进行提交或回滚。如果外层事务不存在，行为就像REQUIRED一样。**<font color="red">【有事务的话，就在这个事务里再嵌套一个完全独立的事务，嵌套的事务可以独立的提交和回滚。没有事务就和REQUIRED一样，新建一个事务。】</font>**
 - `NOT_SUPPORTED`：以非事务方式运行，如果有事务存在，挂起当前事务**<font color="red">【不支持事务，存在就挂起】</font>**
 - `NEVER`：以非事务方式运行，如果有事务存在，抛出异常**<font color="red">【不支持事务，存在就抛异常】</font>**
 
@@ -562,17 +567,17 @@ public class Spring6Configuration {
 
 [不可重复读和幻读的区别是什么](https://m.php.cn/article/474519.html)
 
-> ​		区别：**不可重复读的重点是修改**；同样的条件，第1次和第2次读取的值不一样。**幻读的重点在于新增或者删除**；同样的条件， 第1次和第2次读出来的记录数不一样。
+> ​		区别：**不可重复读的重点是修改**；同样的条件，第1次和第2次读取的值不一样。**幻读的重点在于数据的新增**；同样的条件， 第1次和第2次读出来的记录数不一样。
 >
 > ​		从控制角度来看，**不可重复读只需要锁住满足条件的记录，幻读要锁住满足条件及其相近的记录**。
 
 - **脏读：读取到没有提交到数据库的数据，叫做脏读。**
 - **不可重复读：在同一个事务（未提交）中，第一次和第二次读取的数据不一样。**
-  - **<font color="green">不可重复读的重点是修改</font>**
+  - **<font color="green">不可重复读的重点是修改（update、delete）</font>**
   - 与幻读一样，表现为两次读取的结果不一致
   - 只需要锁住<font color="#5b89fe">满足条件</font>的记录
 - **幻读：读到的数据是假的。**（大白话就是：<u>我脑袋里认为的表中的数据和实际上的当前表中的数据不一致</u>。比如说A事务DQL了一下表中的数据；与此同时，B事务DML了表中的数据。所以此时A事务仍然认为当前表中的数据就是刚刚DQL得到的数据，但不然，已经物是人非……）幻读是不可重复读的**数据增加**的特殊情况。
-  - **<font color="green">幻读的重点在于新增或者删除</font>**
+  - **<font color="green">幻读的重点在于数据新增（insert）</font>**
   - 与不可重复读一样，表现为两次读取的结果不一致
   - 需要锁住<font color="#5b89fe">满足条件</font>及其<font color="#5b89fe">相近</font>的记录
 
@@ -585,7 +590,7 @@ public class Spring6Configuration {
   - 这种隔离级别，存在脏读问题，所谓的**脏读**(dirty read)表示能够读取到<u>其它事务未提交</u>的数据。
   - 须知：**脏写**(dirty write)表示能够修改<u>其它事务修改过</u>的数据
 
-- 读提交：`READ_COMMITTED`（Oracle默认）
+- 读已提交：`READ_COMMITTED`（Oracle默认）
 
   - 解决了脏读问题，其它事务提交之后才能读到，但存在不可重复读问题。
 
@@ -606,38 +611,28 @@ public class Spring6Configuration {
 | 隔离级别 | 脏读 | 不可重复读 | 幻读 |
 | :------: | :--: | :--------: | :--: |
 | 读未提交 |  有  |     有     |  有  |
-|  读提交  |  无  |     有     |  有  |
+| 读已提交 |  无  |     有     |  有  |
 | 可重复读 |  无  |     无     |  有  |
-|  序列化  |  无  |     无     |  无  |
+| 序列化读 |  无  |     无     |  无  |
 
 
 
 > ​		隔离级别越高，并发的性能就越低，所以我们需要对此做出权衡。 
 
-<hr>
 
-- 为什么spring的事务注解@Transaction只能用在public方法上
-
-[(31条消息) 为什么spring的事务注解@Transaction只能用在public方法上_南波兔不写巴哥的博客-CSDN博客_@transaction private](https://blog.csdn.net/qq_34687559/article/details/117636856)
-
-- 编程式事务与声明式事务
-
-[(28条消息) Spring中的编程式事务与声明式事务_XY-JAVA的博客-CSDN博客_声明式事务](https://blog.csdn.net/m0_66918076/article/details/124390848)
-
-[(28条消息) 事务 编程式事务和声明式事务的优缺点_fastjson_的博客-CSDN博客_编程事务和声明事务](https://blog.csdn.net/bbj12345678/article/details/109688950)
 
 
 
 ## 六、JavaConfig
 
-### 什么是 JavaConfig？
+### 1. 什么是 JavaConfig？
 
 - Spring JavaConfig 是 Spring 社区的产品，Spring 3.0引入了它，它提供了配置 Spring IOC 容器的纯Java 方法。因此它有助于避免使用 XML 配置。使用 JavaConfig 的优点在于：
     - **面向对象的配置**。由于配置被定义为 JavaConfig 中的类，因此用户可以充分利用 Java 中的面向对象功能。一个配置类可以继承另一个，重写它的@Bean 方法等。
     - **减少或消除 XML 配置**。基于依赖注入原则的外化配置的好处已被证明。但是，许多开发人员不希望在 XML 和 Java 之间来回切换。JavaConfig 为开发人员提供了一种纯 Java 方法来配置与 XML 配置概念相似的 Spring 容器。从技术角度来讲，只使用 JavaConfig 配置类来配置容器是可行的，但实际上很多人认为将JavaConfig 与 XML 混合匹配是理想的。
     - **类型安全和重构友好**。JavaConfig 提供了一种类型安全的方法来配置 Spring容器。由于 Java 5.0 对泛型的支持，现在可以按类型而不是按名称检索 bean，不需要任何强制转换或基于字符串的查找。
 - 常用的JavaConfig注解：
-    - @Configuration：在类上打上写下此注解，表示这个类是配置类
+    - @Configuration：在类上标明此注解，表示这个类是`配置类`
     - @ComponentScan：在配置类上添加 @ComponentScan 注解。该注解默认会扫描该类所在的包下所有的配置类，对应 <context:component-scan="包名" >。
     - @Bean：对应< bean id=“objectMapper” class=“org.codehaus.jackson.map.ObjectMapper” />
     - @EnableWebMvc：对应< mvc:annotation-driven >
@@ -649,7 +644,9 @@ public class Spring6Configuration {
 
 
 
-### 1. @Configuration
+### 2. 常用注解集锦
+
+#### 1）@Configuration
 
 ​		JavaConfig：使用**Java类**作为XML配置文件的替代品， 是一个纯Java的Spring容器的**<font color="red">配置方式</font>**。<u>在这个Java类中可以创建Java对象，把对象放入Spring容器中（注入到容器）</u>。 我们需要使用`@Configuration`和`@Bean`注解来进行实现。
 
@@ -722,7 +719,7 @@ public void test() {
 
 
 
-### 2. @ImporResource
+#### 2）@ImporResource
 
 @ImportResource 的作用是导入**XML配置文件**，等价于在xml中使用如下标签：
 
@@ -743,7 +740,7 @@ public class SpringConfig {
 
 
 
-### 3. @PropertySource
+#### 3）@PropertySource
 
 @PropertySource：读取properties属性配置文件。 使用属性配置文件可以实现外部化配置 ，在程序代码之外提供数据。相当于在XML文件中使用：
 
@@ -770,7 +767,7 @@ public class SpringConfig {
 
 
 
-### 4. @ConfigurationProperties
+#### 4）@ConfigurationProperties
 
 ​		`@ConfigurationProperties`： 把配置文件的数据映射为java对象。不需要再手动使用@Value注解进行基本类型数据的赋值了。
 
@@ -934,11 +931,12 @@ public class CustomInfoConfig {
 
 ​		使用`@Component` 和 `@Bean` 的目的都是将bean**<font color="blue">注册</font>**到Spring容器中。只是它们出现的位置、适用范围存在着差异。
 
-​		@Component作用于类，表示当前类会被Spring的组件扫描器扫描到（当然，前提是需要开启组件扫描器）并**<u>自动注册</u>**成一个bean至Spring容器中（当前类与被装配的bean存在一对一的映射关系），类中的属性可以享受到Spring的**<u>自动装配</u>**机制（使用@Autowired&@Qualifier、@Resource注解）。
+- @Component作用于类，表示当前类会被Spring的组件扫描器扫描到（当然，前提是需要开启组件扫描器）并**<u>自动注册</u>**成一个bean至Spring容器中（当前类与被装配的bean存在一对一的映射关系），`类中的属性`可以享受到Spring的**<u>自动装配</u>**机制（使用@Autowired&@Qualifier、@Resource注解）。
+- @Bean作用于方法，用于显示声明**<u>单个bean</u>**，能做到将bean的声明与<u>类的定义</u>完全分离，但是无法对bean中属性进行自动装配了。
 
-​		@Bean作用于方法，用于显示声明**<u>单个bean</u>**，能做到将bean的声明与<u>类的定义</u>完全分离。
 
-​		应用场景：当我们想将<u>**第三方的类**</u>注册到我们的应用中的时候，`@Component注解`无能为力。因为缺少源代码，自然也就无法在类（源代码）上加上注解进行bean注册。此时，就需要使用`@Bean注解`来进行**<font color="green">第三方类bean的创建</font>**。
+
+> ​		各自的应用场景：当我们想将<u>**第三方的类**</u>注册到我们的应用中的时候，`@Component注解`无能为力。因为缺少源代码，自然也就无法在类（源代码）上加上注解进行bean注册。此时，就需要使用`@Bean注解`来进行**<font color="green">第三方类bean的创建</font>**。
 
 
 
@@ -977,7 +975,7 @@ public class CustomInfoConfig {
 ​		② 具体区别
 
 - 内部bean：内部bean总是**匿名**的，只能在`<property>`或`< constructor-arg>`标签内部被bean的某个属性使用。
-- 外部bean：直接在`<beans>`标签内使用`<bean>`标签定义的bean对象叫做外部bean，外部bean可以`<beans>`中多次引用。
+- 外部bean：直接在`<beans>`标签内使用`<bean>`标签定义的bean对象叫做外部bean，外部bean可以在`<beans>`中被其它的外部bean多次引用。
 
 
 
@@ -1046,10 +1044,67 @@ public class People {
 
 
 
-#### 2）多例和构造器为什么无法解决循环依赖
+#### 2）什么是[三级缓存](https://blog.csdn.net/m0_67401417/article/details/125244712)？对象在三级缓存中的创建流程？
+
+##### ① 三级缓存源代码
+
+```java
+public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements SingletonBeanRegistry {
+
+    /* 
+    	Cache of singleton objects: bean name to bean instance. 
+    	一级缓存
+    */
+    private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
+
+    /* 
+    	Cache of singleton factories: bean name to ObjectFactory. 
+    	三级缓存
+    */
+    private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
+
+    /* 
+    	Cache of early singleton objects: bean name to bean instance. 
+    	二级缓存
+    */
+    private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
+}    
+```
+
+
+
+##### ② 作用分析
+
+- 第一级缓存：也叫单例池，存放已经经历了完整生命周期的Bean对象；
+- 第二级缓存：用于存放提前曝光的单例对象的cache，存放原始的 `bean 对象（尚未填充属性）`，用于解决循环依赖；
+- 第三级缓存：单例对象工厂的cache，存放 bean的 `工厂对象`，用于解决循环依赖。
+
+注：
+
+​		只有单例的bean会通过三级缓存提前暴露来解决循环依赖的问题，而非单例的bean，每次从容器中获取都是一个新的对象，都会重新创建，所以非单例的bean是没有缓存的，不会将其放到三级缓存中。
+
+​		为了解决二级缓存中AOP生成新对象的问题，Spring就提前AOP，比如在加载b的流程中，如果发送了循环依赖，b依赖了a，就要对a执行AOP，提前获取增强以后的a对象，这样b对象依赖的a对象就是增强以后的a了。
+
+​		二三级缓存就是为了解决循环依赖，且之所以是二三级缓存而不是二级缓存，主要是可以解决循环依赖对象需要提前被aop代理，以及如果没有循环依赖，早期的bean也不会真正暴露，不用提前执行代理过程，也不用重复执行代理过程。
+
+
+
+##### ③ 对象在三级缓存中的创建流程
+
+Eg：A依赖B，B依赖A
+
+1、A创建过程中需要B，于是先将A放到三级缓存，去实例化B。
+
+2、B实例化的过程中发现需要A，于是B先查一级缓存寻找A，如果没有，再查二级缓存，如果还没有，再查三级缓存，找到了A，然后把三级缓存里面的这个A放到二级缓存里面，并删除三级缓存里面的A。
+
+3、B顺利初始化完毕，将自己放到一级缓存里面（此时B里面的A依然是创建中的状态）。然后回来接着创建A，此时B已经创建结束，可以直接从一级缓存里面拿到B，去完成A的创建，并将A放到一级缓存。
+
+
+
+#### 3）多例和构造器为什么无法解决循环依赖
 
 - 为什么多例Bean不能解决循环依赖？
-        	只有单例的bean会通过三级缓存提前暴露来解决循环依赖的问题，而非单例的bean，每次从容器中获取都是一个新的对象，都会重新创建（不走缓存，没有我就新建），所以多例的bean是没有缓存的，不会将其放到三级缓存中。
+        	只有单例的bean会通过三级缓存提前暴露来解决循环依赖的问题，而非单例的bean，每次从容器中获取都是一个新的对象，都会重新创建（不走缓存，没有我就新建），所以**多例的bean是没有缓存的**，不会将其放到三级缓存中。
 
 - 为什么Spring不能解决构造器的循环依赖？
 
@@ -1057,9 +1112,7 @@ public class People {
 
 
 
-
-
-#### 3）总结
+#### 4）总结
 
 ​		Spring只能解决**setter注入的单例bean之间**的循环依赖。ClassA依赖ClassB，ClassB又依赖ClassA，形成依赖闭环。Spring在创建ClassA对象后，不需要等给属性赋值，直接将其曝光到bean缓存当中。在解析ClassA的属性时，又发现依赖于ClassB，再次去获取ClassB，当解析ClassB的属性时，又发现需要ClassA的属性，但此时的ClassA已经被提前曝光加入了正在创建的bean的缓存中，则无需创建新的的ClassA的实例，直接从缓存中获取即可。从而解决循环依赖问题。
 
@@ -1092,10 +1145,9 @@ public class People {
 >
 > ​		它们的**执行时机**不同，仅此而已。
 >
-> <hr>
+> ---
 >
->
-> ​	 Spring虽然可以通过`afterPropertiesSet`完成bean初始化后对这个bean的回调，但是这种方式要求bean实现InitializingBean接口。**<font color="blue">一但bean实现了InitializingBean接口，那么这个bean的代码就和Spring耦合到一起了</font>**。通常情况下不建议bean直接实现InitializingBean，可以使用Spring提供的init-method的功能来执行一个bean子定义的初始化方法。
+>​		Spring虽然可以通过`afterPropertiesSet`完成bean初始化后对这个bean的回调，但是这种方式要求bean实现InitializingBean接口。**<font color="blue">一但bean实现了InitializingBean接口，那么这个bean的代码就和Spring耦合到一起了</font>**。通常情况下不建议bean直接实现InitializingBean，可以使用Spring提供的init-method的功能来执行一个bean子定义的初始化方法。
 
 
 
@@ -1266,7 +1318,7 @@ public class VipFactory {
 
 > ​		这种方式本质上是：通过**工厂模式**进行实例化。
 >
-> ​		所以，需要先创建工厂bean对象，用来创建bean对象。再利用这个工厂bean对象创建bean对象。
+> ​		所以，需要先创建`工厂bean`对象，用来创建bean对象。再利用这个工厂bean对象创建bean对象。
 
 
 
@@ -1320,7 +1372,6 @@ public class Order {
 > }    
 > ```
 >
-> 
 
 
 
@@ -1405,6 +1456,8 @@ Spring生成代理的方式有两种：
 
 #### 1）非public修饰的方法
 
+[(31条消息) 为什么spring的事务注解@Transaction只能用在public方法上_南波兔不写巴哥的博客-CSDN博客_@transaction private](https://blog.csdn.net/qq_34687559/article/details/117636856)
+
 ​		非 public 修饰的方法上，即使加了@Transactional，事务依然不会生效。这是因为@Transactional使用的是`Spring AOP`实现的，而 Spring AOP是通过`动态代理`实现的，而@Transactional在生成代理时会进行判断：**如果方法为非 public修饰的方法，则不生成代理对象**，这样也就没办法自动执行事务了。它的部分实现源码如下：
 
 - `AbstractFallbackTransactionAttributeSource`类：
@@ -1433,7 +1486,7 @@ Spring生成代理的方式有两种：
 
 
 
-#### 4）调用类内部的@Transactional方法
+#### 4）显示|隐式使用`this`对象调用类内部的@Transactional方法
 
 ​		上述代码在添加用户之后即使遇到了异常，程序也没有执行回滚，这是因为**@Transactional是基于 `Spring AOP`实现的，而 Spring AOP又是基于`动态代理`实现的，而当调用类内部的方法时，不是通过代理对象完成的，而是通过`this对象`实现的，这样就绕过了代理对象，事务也就失效了**。
 
