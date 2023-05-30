@@ -1,6 +1,6 @@
 # JUC下篇
 
-> ​		线程池、JUC、AQS 源码、ReentrantLock 源码。
+> ​		线程池。
 
 
 
@@ -51,7 +51,7 @@
 
 
 
-> ​		**单线程池的意义：** 虽然 `newSingleThreadExecutor` 和 `newSingleThreadScheduledExecutor` 是单线程池，但提供了工作队列，生命周期管理，工作线程维护等功能。
+> ​		**单线程池的意义：** 虽然 `newSingleThreadExecutor` 和 `newSingleThreadScheduledExecutor` 是单线程池，但提供了工作队列，生命周期管理，工作线程维护等功能，如果是手动new一个线程，则缺少对其的维护，在使用时会特别不好管理。
 
 
 
@@ -66,12 +66,12 @@
 | RUNNING    | 111       | 接收新任务，同时处理任务队列中的任务                         |
 | SHUTDOWN   | 000       | 不会接收新任务，但会将任务队列中的任务处理完                 |
 | STOP       | 001       | 中断正在执行的任务，同时抛弃任务队列中的任务                 |
-| TIDYING    | 010       | 当任务执行完毕，并且活动着的线程数为0时，表示即将进入终结状态 |
+| TIDYING    | 010       | 当任务执行完毕，并且活动着的线程数为0时，表示即将进入终结状态（善后） |
 | TERMINATED | 011       | 终结状态                                                     |
 
 
 
-**线程池状态**和**线程池中线程的数量**由一个`原子整型ctl`来表示：
+==线程池状态==和==线程池中线程的数量==由一个`原子整型ctl`来表示：
 
 - 使用一个数来表示两个值的主要原因是：**<font color="red">可以通过一次CAS同时更改两个属性的值</font>**。
 
@@ -127,7 +127,7 @@ private final HashSet<Worker> workers = new HashSet<Worker>();
 
 
 
-##### ③ 构造方法
+##### ③ 构造方法参数 | `线程池核心参数`
 
 ​		首先我们看一下 `ThreadPoolExecutor` 类参数最多、最全的有参构造方法。根据这个构造方法，JDK `Executors` 类中提供了众多**工厂方法**来创建各种用途的线程池。
 
@@ -158,7 +158,7 @@ public ThreadPoolExecutor(
 
 
 
-##### ④ 线程池的工作方式
+##### ④ 线程池的工作流程
 
 1. 线程池中刚开始没有线程，当一个任务提交给线程池后，线程池会创建一个新线程来执行任务。
 
@@ -166,7 +166,7 @@ public ThreadPoolExecutor(
 
 3. 如果队列选择了**有界队列**，那么当任务超过了队列大小时，会创建 `maximumPoolSize - corePoolSize` 数目的**救急线程**来执行这些超出队列大小的任务。
 
-4. 当高峰过去后，如果**救急线程**有一段时间没有任务可做，需要结束以节省资源，这个时间可由 `keepAliveTime` 和 `unit` 来控制。
+4. 当高峰过去后，**救急线程**在空闲一段时间后需要被 结束|回收 以节省资源，这个时间可由 `keepAliveTime` 和 `unit` 来控制。
 
 5. 如果线程数超过了 `maximumPoolSize` ，并且仍然有新任务过来，这时会执行**拒绝策略**。<font color="blue">JDK 提供了 4 种拒绝策略的实现</font>：
 
@@ -184,15 +184,22 @@ JDK 线程池的**拒绝策略结构图**如下：
 
 
 
-另外，<font color="blue">其它著名框架也提供了不同拒绝策略的实现</font>：
+> 扩展：
+>
+> ​		<font color="blue">其它著名框架中提供的不同拒绝策略</font>：
+>
+> - Dubbo 的实现，在抛出 RejectedExecutionException 异常之前会记录日志，并 dump 线程栈信息，方便定位问题；
+>
+> - Netty 的实现，是创建一个新线程来执行任务；
+>
+> - ActiveMQ 的实现，带超时等待（60s）尝试放入队列，类似我们之前自定义的拒绝策略；
+>
+> - PinPoint 的实现，它使用了一个拒绝策略链，会逐一尝试策略链中每种拒绝策略。
+>
 
-- Dubbo 的实现，在抛出 RejectedExecutionException 异常之前会记录日志，并 dump 线程栈信息，方便定位问题；
 
-- Netty 的实现，是创建一个新线程来执行任务；
 
-- ActiveMQ 的实现，带超时等待（60s）尝试放入队列，类似我们之前自定义的拒绝策略；
-
-- PinPoint 的实现，它使用了一个拒绝策略链，会逐一尝试策略链中每种拒绝策略。
+submit()方法用于提交需要返回值的任务。线程池会返回一个future类型的对象，通过这个future对象可以判断任务是否执行成功，并且可以通过future的get()方法来获取返回值，get()方法会阻塞当前线程直到任务完成，而使用get（long timeout，TimeUnitunit）方法则会阻塞当前线程一段时间后立即返回，这时候有可能任务没有执行完。
 
 
 
@@ -201,10 +208,18 @@ JDK 线程池的**拒绝策略结构图**如下：
 ###### Ⅰ. 提交|执行任务
 
 ```java
-// 执行任务
+/* 
+	执行|提交任务：
+		用于提交不需要返回值的任务，所以无法判断任务是否已经被线程池执行成功~
+*/
 void execute(Runnable command);
 
-// 提交任务 task，用返回值 Future 获得任务执行结果，Future的原理就是利用我们之前讲到的保护性暂停模式来接受返回结果的，主线程可以执行 FutureTask.get()方法来等待任务执行完成
+/* 
+	执行|提交任务：
+		用于提交需要返回值的任务。线程池会返回一个future类型的对象，通过这个future对象可以判断任务是否执行成功，并且可以通过future的get()方法来获取返回值（若发生了异常，则异常对象会被封装至此方法中，在调用时会自动抛出异常对象）。
+		- get()方法会阻塞当前线程直到任务完成。
+		- get(long timeout, TimeUnit unit)方法则会阻塞当前线程一段时间后立即返回，这时候有可能任务没有执行完。
+*/	
 <T> Future<T> submit(Callable<T> task);
 
 // 提交 tasks 中所有任务，并用List集合封装任务的执行结果
@@ -620,7 +635,7 @@ public class NewWorkStealingPoolDemo {
 
 ​		如果线程池中的线程执行任务时抛出了异常，默认是中断执行该任务而不是抛出异常或者打印异常信息。
 
-**方法1：主动捉异常**
+#### 1）主动捉异常
 
 ```java
 ExecutorService pool = Executors.newFixedThreadPool(1);
@@ -636,7 +651,7 @@ pool.submit(() -> {
 
 
 
-**方法2：使用返回值是 Future 的方法时，错误信息都会被封装进Future中**
+#### 2）使用返回值是 Future 的方法时，异常信息都会被封装进Future中
 
 ```java
 ExecutorService pool = Executors.newFixedThreadPool(1);
@@ -652,11 +667,17 @@ log.debug("result:{}", f.get());
 
 
 
+### 1.5 Executor 和Executors
 
+- Executors 是一个工具类，其内部提供了不同的方法可以按照我们的需求创建不同的线程池，来满足业务的需求。
 
+- Executor 接口实现类对象能执行我们的线程任务。
 
+- ExecutorService 接口继承了 Executor 接口并对其进行了扩展，提供了更多的方法。例如：我们能获得任务执行的状态并且可以获取任务的返回值。
 
+- 使用 ThreadPoolExecutor 用来创建自定义线程池。
 
+![image-20230506154829600](JUC下篇.assets/image-20230506154829600.png)
 
 
 

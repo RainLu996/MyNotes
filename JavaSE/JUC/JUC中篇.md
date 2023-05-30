@@ -78,7 +78,7 @@ public static void main(String[] args) {
 
 - 解决方案
     - 使用 `volatile` （易变关键字）；
-    - 它可以用来修饰**成员变量**和**静态成员变量**（放在主存中的变量），他可以避免线程从自己的工作缓存中查找变量的值，必须到主存中获取它的值，**线程操作 volatile 变量都是直接操作主存**。
+    - 它可以用来修饰**成员变量**和**静态成员变量**，他可以避免线程从自己的`工作缓存`中查找变量的值，而必须到`主存`中获取它的值，**线程操作 volatile 变量都是直接操作`主存`**。
 
 ```java
 // 语法
@@ -163,9 +163,11 @@ public void actor2(I_Result r) {
 
 ###### Ⅱ. 使用 synchronized
 
-​		**`synchronized`和`Lock`也可以保证有序性，但却无法禁止指令重排**。synchronized 和 Lock 可以保证每个时刻只有一个线程执行同步代码块，相当于是让线程顺序执行同步代码。你就可以理解为线程顺序执行后，那块同步代码块执行的是单线程操作，即没有其它线程影响它，那指令是否被处理器重排就都不会影响最终结果了，也就是说，**天然的保证有序了**。但毕竟是重量级锁，对性能会有较大影响。
+​		==**`synchronized`和`Lock`也可以保证有序性，但却无法禁止指令重排**==。synchronized 和 Lock 可以保证每个时刻只有一个线程执行同步代码块，相当于是让线程顺序执行同步代码。你就可以理解为线程顺序执行后，那块同步代码块执行的是单线程操作，即没有其它线程影响它，那指令是否被处理器重排就都不会影响最终结果了，也就是说，**天然的保证有序了**。但毕竟是重量级锁，对性能会有较大影响。
 
 
+
+###### Ⅲ. 扩展：为什么synchronized无法禁止指令重排，却能保证有序性？
 
 > ​		Q：为什么synchronized无法禁止指令重排，却能保证有序性？
 >
@@ -505,7 +507,7 @@ public interface Account {
 
 
 
-- `AccountSynchronizedImpl`：使用Synchronized实现存取款操作【有锁】
+- `AccountSynchronizedImpl`：使用Synchronized实现存取款操作【**有锁**】
 
 ```java
 public class AccountSynchronizedImpl implements Account {
@@ -529,11 +531,11 @@ public class AccountSynchronizedImpl implements Account {
 }
 ```
 
-> ​		如上代码加锁会造成线程堵塞，堵塞的时间取决于临界区代码的执行时间，这使得加锁的性能不高。我们可以使用无锁来解决此问题。
+> ​		如上代码加锁会造成线程堵塞，**阻塞的时间取决于临界区代码的执行时间**，这使得加锁的性能不高。我们可以使用`无锁`来解决此问题。
 
 
 
-- `AccountCASImpl`：使用CAS实现存取款操作【无锁】
+- `AccountCASImpl`：使用CAS实现存取款操作【**无锁**】
 
 ```java
 public class AccountCASImpl implements Account {
@@ -564,9 +566,11 @@ public class AccountCASImpl implements Account {
 
 ### 2.2 CAS
 
-#### 1）CAS
+#### 1）CAS 概念
 
 ​		我们看到，使用 `AtomicInteger` 来实现取款操作，其内部并没有用锁来保护`共享变量`的线程安全。	其中的关键是 `compareAndSwap`（比较并设置值），它的简称就是 `CAS` （也有 Compare And Swap 的说法），CAS必须是一个 **原子操作**。
+
+​		CAS是项**乐观锁**技术，当多个线程尝试使用CAS同时更新同一个变量时，只有其中一个线程能更新变量的值，而其它线程都失败，失败的线程并不会被挂起，而是被告知这次竞争中失败，并可以再次尝试。
 
 
 
@@ -576,21 +580,22 @@ public class AccountCASImpl implements Account {
 
 用文字简述上图流程：
 
-​		当一个线程要去修改 Account 对象中的值时，先获取**旧值** `preVal`（调用get方法），然后再将其设置为**新值** `nextVal`（调用 CAS方法）。在调用 CAS方法时，会将 preVal 与 Account 中的余额（**内存值**）进行比较。
+​		当一个线程要去修改 Account 对象中的值时，先获取**旧值** `preVal`（调用get方法），然后再将其设置为**新值** `nextVal`（调用 CAS方法）。在调用 CAS 方法时，会将 preVal 与 Account 中的余额（**内存值**）进行比较。
 
 - 如果两者相等（==内存值 = 旧值==），就说明该值还未被其他线程修改，此时便可以进行修改操作。
 - 如果两者不相等（==内存值 ≠ 旧值==），就不设置值，重新获取值 preVal（调用get方法），然后再将其设置为新的值 nextVal（调用CAS方法），直到修改成功为止。
 
 
 
-> 注意：
->
-> - 其实 `CAS` 的底层是 `lock cmpxchg` 指令（X86 架构），在`单核 CPU` 和`多核 CPU` 下都能够保证【**比较 & 交换**】的原子性。
-> - 在多核状态下，某个核执行到带 lock 的指令时，CPU 会让总线锁住，当这个核把此指令执行完毕，再开启总线。在这个过程中**不会被线程的 调度机制 所打断，保证了多个线程对内存操作的准确性，是==原子性操作==** 。
+#### 2）CAS 原理
+
+​		CAS底层是基于**硬件级别**的指令实现的同步原语，即`lock`与 [cmpxchg（compare-exchange）](https://baike.baidu.com/item/cmpxchg指令/11054211) 这两个汇编指令。在`单核 CPU` 和`多核 CPU` 下都能够保证【**比较 & 交换**】的原子性。
+
+​		通过`lock`去对要操作的内存的`缓存行`加一把锁，缓存行若超过**64字节**就上一把==总线锁==。 硬件级别加锁只能针对**一个缓存行**加锁，因为如果跨多个缓存行而只加一把总线锁，那总线锁的粒度就很大了。也就是说在比较并交换期间其它别的线程是拿不到这把锁了，这里相当于是**串行化**。另外，我们可以配合while进行自旋锁的实现。
 
 
 
-#### 2）CAS 的特点
+#### 3）CAS 特点
 
 结合 `CAS` 和 `volatile` 可以实现**无锁并发**，==适用于线程数少、多核 CPU== 的场景下。
 
@@ -602,14 +607,38 @@ public class AccountCASImpl implements Account {
 
 
 
-#### 3）为什么无锁效率高
+#### 4）CAS 缺点
+
+> ​		CAS只能保证一个共享变量的原子操作。
+
+##### ① 效率问题
+
+​		若存在多个线程竞争，由于同时只能有一个线程执行成功，则会导致大量的CAS失败。这些CAS失败的线程就需要循环（自旋）执行CAS，这样是会影响CPU性能的。
+
+
+
+##### ② ABA问题
+
+​		`ABA`问题是**无锁结构**实现中常见的一种问题。
+
+​		举例如下：
+
+1. 进程P1读取了一个数值A，P1被挂起(时间片耗尽、中断等)；
+2. 进程P2开始执行，P2修改数值A为数值B，然后又修改回A【`A -> B -> A`】；
+3. P1被唤醒，比较后发现数值A没有变化，程序继续执行。
+
+
+
+#### 5）为什么无锁效率高
 
 - 无锁情况下，即使重试失败，线程始终在高速运行，没有停歇，而 synchronized 会让线程在没有获得锁的时候，发生上下文切换，进入阻塞。打个比喻：线程就好像高速跑道上的赛车，高速运行时，速度超快，一旦发生上下文切换，就好比赛车要减速、熄火，等被唤醒又得重新打火、启动、加速… 恢复到高速运行，代价比较大
 - 但无锁情况下，因为线程要保持运行，需要额外 CPU 的支持，CPU 在这里就好比高速跑道，没有额外的跑道，线程想高速运行也无从谈起，虽然不会进入阻塞，但由于没有分到时间片，仍然会进入可运行状态，还是会导致上下文切换。
 
 
 
-### 2.3 并发操作工具类
+### 2.3 并发操作工具类-原子类
+
+[(117条消息) 什么是原子类，原子类有那些，有什么作用_itmkyuan的博客-CSDN博客](https://blog.csdn.net/weixin_46665411/article/details/127227150)
 
 ​		`java.util.concurrent.atomic`并发包中提供了一些并发工具类，这里把它分成五类：
 
@@ -623,7 +652,7 @@ public class AccountCASImpl implements Account {
 
 #### 1）原子整数
 
-使用原子的方式更新基本类型：
+使用原子的方式更新**基本类型**的共享变量：
 
 - `AtomicInteger`：整型原子类
 - `AtomicLong`：长整型原子类
@@ -678,10 +707,10 @@ public static void main(String[] args) {
 
 #### 2）原子引用
 
-​		`原子引用类型`可以保证`引用类型的共享变量`是线程安全的（但需要确保这个原子引用没有引用过别人）。
-`基本类型原子类型`只能更新一个变量，如果需要原子更新多个变量，需要使用引用类型原子类。
+​		`原子引用类型`可以保证**引用类型**的共享变量是线程安全的（但需要确保这个原子引用没有引用过别人）。
 
-- `AtomicReference`：引用类型原子类；
+
+- `AtomicReference`：原子更新引用类型；
 - `AtomicStampedReference`：原子更新带有**版本号**的引用类型。该类将整数值版本号与引用关联起来，通过原子的更新数据和数据的版本号，可以解决使用 CAS 进行原子更新时可能会出现的 `ABA` 问题；
 - `AtomicMarkableReference` ：原子更新带有**标记**的引用类型。该类将 boolean 标记与引用关联起来，如果我们只在意是否出现了ABA问题，而不在意中途有几次版本的迭代，则可以使用此类。
 
@@ -719,13 +748,13 @@ private static void other() throws InterruptedException {
 
 
 
-##### ② ABA问题
+##### ② ABA问题解决方案
 
 ​		主线程仅能判断出共享变量的值与最初值 A 是否相同，不能感知到这种从 A 改为 B 又改回 A 的情况，如果主线程希望：只要有其它线程**修改**了共享变量，那么自己的 CAS 就算失败，这时，仅比较值是不够的，需要再加一个`版本号`或者记录是否被改动的布尔标识。可以使用`AtomicStampedReference|AtomicMarkableReference`来解决。
 
 
 
-##### ③ AtomicStampedReference
+###### Ⅰ. AtomicStampedReference
 
 ​		使用 `AtomicStampedReference` 加 `stamp` （版本号或者时间戳）的方式解决 ABA 问题。代码如下：
 
@@ -766,7 +795,7 @@ private static void other() throws InterruptedException {
 
 
 
-##### ④ AtomicMarkableReference
+###### Ⅱ. AtomicMarkableReference
 
 ​		`AtomicStampedReference` 可以给原子引用加上**版本号**，追踪原子引用整个的变化过程，如：A -> B -> A ->C，通过AtomicStampedReference，我们可以知道，引用变量中途被更改了几次。但有时候，我们并不关心引用变量到底被更改了几次，而只是单纯的关心是否被更改过，所以就有了`AtomicMarkableReference` 。
 
@@ -801,7 +830,7 @@ public static void main(String[] args) {
 
 #### 3）原子数组
 
-使用原子的方式更新数组里的某个元素，可以保证元素的线程安全。
+使用原子的方式更新**数组里的某个元素**，可以保证数组元素的线程安全。
 
 - `AtomicIntegerArray`：整形数组原子类
 - `AtomicLongArray`：长整形数组原子类
@@ -873,7 +902,10 @@ private static <T> void demo(
 - `AtomicIntegerFieldUpdater`：整形字段更新器原子类；
 - `AtomicLongFieldUpdater`：长整形字段更新器原子类。
 
-​		注意：利用字段更新器，可以针对对象的某个域（`Field`）进行**原子操作**，但字段必须被 `volatile` 修饰，否则会出现异常：`Exception in thread "main" java.lang.IllegalArgumentException: Must be volatile type`。
+> ​		注意：
+>
+> - 利用字段更新器，可以针对对象的某个域（`Field`）进行**原子操作**，但字段必须被 `volatile` 修饰，否则会出现异常：`Exception in thread "main" java.lang.IllegalArgumentException: Must be volatile type`。
+> - 不支持被private、static修饰的属性。
 
 ```java
 public static AtomicReferenceFieldUpdater<Student, String> ref =
@@ -895,6 +927,7 @@ public static void main(String[] args) throws InterruptedException {
 
 static class Student {
 
+    // 不可以被static | private修饰！！！
     public volatile String name;
 
     @Override
@@ -910,7 +943,7 @@ static class Student {
 
 #### 5）原子累加器
 
-##### ① AtomicLong Vs LongAdder
+##### ① AtomicLong Vs ==LongAdder==
 
 ```java
 public static void main(String[] args) {
@@ -1032,9 +1065,9 @@ public class LockCAS {
 
 
 
-#### 2）伪共享
+#### 2）缓存行&伪共享
 
-##### ① 什么是伪共享
+##### ① 什么是缓存行&伪共享
 
 ​		随着`CPU`和 `内存` 的发展速度差异的问题，导致CPU的速度远远快于内存，所以一般现在的CPU都加入了`高速缓存`，就是常说的**解决不同硬件之间的性能差异问题**。
 
@@ -1140,6 +1173,8 @@ static final class Cell {
 
 
 #### 4）add 方法分析
+
+
 
 
 

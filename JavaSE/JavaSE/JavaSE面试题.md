@@ -233,6 +233,8 @@ p2 属性值=小王，200，今天天气很好，适合出去玩
 ---
 
 - Demo
+    - 实现`Cloneable`接口，以向`Object.clone()`方法指示该方法为该类实例的字段副本创建字段是合法的。
+    - 未实现`Cloneable`接口的实例调用`Object.clone()`方法会导致抛出异常：`CloneNotSupportedException`。
 
 ```java
 public class TestShallowCopy {
@@ -270,6 +272,7 @@ class Person implements Cloneable {
         this.something = something;
     }
 
+    // 将clone方法改为public的，使得此方法可以在任意地方被调用
     @Override
     public Person clone() throws CloneNotSupportedException {
         return (Person) super.clone();
@@ -302,6 +305,7 @@ p2 属性值=小张，180，今天天气很好，适合出去玩
 ---
 
 - 方式一：对浅拷贝中的`clone`方法进行一点改进
+    - 如果重写了`clone`方法，则不需要实现`Cloneable`接口
 
 ```java
 @Override
@@ -318,6 +322,8 @@ public Person clone() throws CloneNotSupportedException {
 
 
 - 方式二：借助序列化实现对象的深拷贝
+    - 用到了序列化，则需要实现`Serializable`接口
+    - 由于重写了clone方法，则不需要实现`Cloneable`接口
 
 ```java
 //实体类---需要实现Serializable接口
@@ -743,7 +749,7 @@ System.out.println(Integer.class == int.class);    // false
 
 > ​		解决Hash冲突的方法有：**开放定址法**、**再哈希法**、**链地址法（拉链法）**、**建立公共溢出区**。HashMap中采用的是`链地址法`。
 
-- **开放定址法**：直接从发生冲突的数组位置顺着往下寻找一个空的数组下标位置进行数据存储。
+- **开放定址法|线性探测法**：直接从发生冲突的数组位置顺着往下寻找一个空的数组下标位置进行数据存储。
 - **再哈希法（双重散列，多重散列）**：提供多个不同的hash函数，当R1=H1(key1)发生冲突时，再计算R2=H2(key1)，直到没有冲突为止。比如`布隆过滤器`就使用到了这种方法。
 - **链地址法（拉链法）**：将哈希值相同的元素构成一个同义词的单链表，并将单链表的头指针存放在哈希表数组的第i个单元中，查找、插入和删除主要在同义词链表中进行。链表法适用于经常进行插入和删除的情况。
 - **建立公共溢出区**：将哈希表分为`公共表`和`溢出表`，当溢出发生时，将所有溢出数据统一放到溢出区。
@@ -928,7 +934,7 @@ public static void main(String[] args) {
 
 ### ConcurrentHashMap的[实现原理](https://www.bilibili.com/video/BV1QS4y1u7gG/)是什么？
 
-​		在数据结构上， JDK1.8 中的ConcurrentHashMap 选择了与 HashMap 相同的`数组+链表+红黑树`的结构；在锁的实现上，抛弃了 JDK1.8 以前原有的 [Segment 分段锁](https://www.jianshu.com/p/bd572ccbf73c)，采用`CAS + synchronized`实现更加**低粒度**的锁。将锁的级别控制在了更细粒度的**哈希桶元素级别**，也就是说只需要锁住这个**链表头结点**|**红黑树的根节点**，就不会影响其他的哈希桶元素的读写，大大提高了并发度。
+​		在数据结构上， JDK1.8 中的ConcurrentHashMap选择了与 HashMap 相同的`数组+链表+红黑树`的结构；在锁的实现上，抛弃了 JDK1.8 以前原有的 [Segment 分段锁](https://www.jianshu.com/p/bd572ccbf73c)，采用`CAS + synchronized`实现更加**低粒度**的锁。将锁的级别控制在了更细粒度的**哈希桶元素级别**，也就是说只需要锁住这个**链表头结点**|**红黑树的根节点**，就不会影响其他的哈希桶元素的读写，大大提高了并发度。
 
 
 
